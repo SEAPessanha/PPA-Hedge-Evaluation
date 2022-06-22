@@ -1,0 +1,562 @@
+
+{% extends 'ppa/base.html'%}
+{% block title %}
+Synertics
+{% endblock %}
+
+{% block css %}
+<style>
+ 
+    .text-syn{
+        color: #126caa;
+    }
+    .text-grey{
+        color: #6c757d;
+    }
+    .text-black {
+        color: #1a1a1a;
+    }
+    .h100-70{
+        min-height: calc(100vh - 70px);
+    }
+    .w100{
+        width: 100vw;
+    }
+    .btn-syn{
+        background-color: #126caa;
+        color: #fff;
+    }
+    .btn-syn:hover{
+        background-color: #0e598a;
+        color: #fff;
+        border-color:#0e598a ;
+    }
+    .form-control:focus{
+        box-shadow: none;
+        border: 1px solid #126caa;
+        
+    }
+    .col-form-label{
+        line-height: 1;
+    }
+    .graph-divs{
+        min-height: calc(50vh - 60px);
+    }
+    .modal-dialog {
+        max-width: 950px;
+        width: 100vw;
+    }
+
+    
+
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<!-- <button type="button" class="btn btn-primary position-absolute" data-bs-toggle="modal" data-bs-target="#tableModal" style="position: fixed;
+top: 15px;
+right:10px;
+z-index: 1;
+">
+    Input
+</button> -->
+<div class="h100-70 d-flex flex-wrap justify-content-between align-items-start mx-0">
+    <div class="d-flex flex-md-nowrap flex-wrap justify-content-around m-0 w-100 mt-3">
+        <div class="shadow rounded  p-2 mb-2 w-100 mx-2 graph-divs">
+                <h6 class="text-right w-100 mb-1 text-syn"> 10-year cash flow projections according to PPA structures </h6>
+                <span class="text-right w-100 mb-1 text-grey"> € in millions </span>
+                <canvas id="myChart" style="height:calc(50vh - 120px);width:100%" ></canvas>  
+        </div>
+
+        <div class="shadow rounded  p-2 mb-2 w-100 mx-2 graph-divs">
+            <h6 class="text-right w-100 mb-1 text-syn"> Net Present Values in consideration of given discount rate </h6>
+            <span class="text-right w-100 mb-1 text-grey"> € in millions </span>
+            <canvas id="horBar" style="height:calc(50vh - 120px);width:100%" ></canvas>  
+        </div>
+    </div>
+
+
+    <div class="d-flex  flex-md-nowrap flex-wrap justify-content-around m-0 w-100 mt-2">
+    
+        <div class="shadow rounded mb-2 p-2 w-100 mx-2 graph-divs">
+            <h6 class="text-right w-100 mb-1 text-syn"> Minimum, average and maximum 5-year historic hourly day-ahead prices </h6>
+            <span class="text-right w-100 mb-1 text-grey"> € per MWh </span>
+            <canvas id="graph4" style="height:calc(50vh - 120px);width:100%"></canvas>
+        </div>
+        <div class="shadow rounded mb-2 p-2 w-100 mx-2 graph-divs">
+            <h6 class="text-right w-100 mb-1 text-syn"> Price range frequency of 5-year historic hourly day-ahead prices </h6>
+            <span class="text-right w-100 mb-1 text-grey"> sub heading </span>
+            <canvas id="hourly" style="height:calc(50vh - 120px);width:100%" ></canvas>  
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tableModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tableModalLabel">Inputs</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="" method="POST" id="inputs">
+                {% csrf_token %}
+                <table class="table table-borderless table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+            
+                            </th>
+                            <th>
+                                General
+                            </th>
+                            <th>
+                                Pay as produced
+                            </th>
+                            <th>
+                                Solar Profile
+                            </th>
+                            <th>
+                                Yearly Baseload
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> P50 (in MWh) </span>
+                            </td>
+                            <td>
+                                {{form.p_50}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> Depreciation (in %) </span>
+                            </td>
+                            <td>
+                                {{form.depreciation}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> Production factor (in %) </span>
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                                {{form.production_factor}}
+    
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> Inflation (in %) </span>
+                            </td>
+                            <td>
+                                {{form.inflation}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> Spot price reduction (in %) </span>
+                            </td>
+                            <td>
+                                {{form.price_capture_rate_discount}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> NPV discount rate (in %) </span>
+                            </td>
+                            <td>
+                                {{form.discount}}
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> PPA price (in €/MWh</span>
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" disabled value="0"> -->
+                            </td>
+                            <td>
+                                {{form.price_pap}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                {{form.price_sp}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                {{form.price_ybl}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="text-black fw-bold"> Hedge (in %) </span>
+                            </td>
+                            <td>
+                                <!-- <input type="text" class="form-control" disabled value="0"> -->
+                            </td>
+                            <td>
+                                {{form.hedge_percentage_pap}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                {{form.hedge_percentage_sp}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                            <td>
+                                {{form.hedge_percentage_ybl}}
+                                <!-- <input type="text" class="form-control" value="0"> -->
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </form>
+            
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary btn-syn w-100 mx-auto" form="inputs"> Calculate </button>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{%block scripts%}
+<script>
+// jquery function
+$(document).ready(function(){
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        data: {
+            labels: [{%for years in df_years%}{{years}},{%endfor%}], //loop through queryset, 
+            datasets: [{
+                label: 'Pay-as-produced',
+                type: 'line',
+                data: [{%for pap in df_pap%}{{pap}},{%endfor%}],
+                borderColor: ['rgba(75, 192, 192, 1)'],
+                backgroundColor: ['rgba(75, 192, 192, 1)'],
+                borderWidth: 3,
+                order:3,
+            },
+            {
+                label: 'Solar Profile',
+                type: 'line',
+                data: [{%for data in df_sp%}{{data}},{%endfor%}],
+                borderColor: ['rgba(255, 159, 64, 1)'],
+                backgroundColor: ['rgba(255, 159, 64, 1)'],
+                borderWidth: 3,
+                order:2,
+            },
+            {
+                label: 'Yearly Baseload',
+                type: 'line',
+                data: [{%for data in df_ybl%}{{data}},{%endfor%}],
+                borderColor: ['rgba(98, 98, 98, 1)'],
+                backgroundColor: ['rgba(98, 98, 98, 1)'],
+                borderWidth: 3,
+                order:2,
+            },
+            ]
+        },
+        options: {
+            responsive:false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                    display: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // fourth graph
+    const labels = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+    ];
+
+    const data = {
+        labels: [{%for k,hours in df_hourly_price_year.hour.items %}{{hours}},{%endfor%}],
+        datasets: [
+        {
+        label: 'Mean',
+        backgroundColor: 'rgb(50, 106, 167)',
+        borderColor: 'rgb(50, 106, 167)',
+        data: [{%for k,mean in df_hourly_price_year.mean.items %}{{mean}},{%endfor%}],
+        },
+        {
+        label: 'Min',
+        backgroundColor: '#dfe2e69c',
+        borderColor: 'rgb(223, 226, 230)',
+        data: [{%for k,min in df_hourly_price_year.min.items %}{{min}},{%endfor%}],
+        },
+        {
+        label: 'Max',
+        backgroundColor: '#afafaf',
+        borderColor: '#afafaf',
+        data: [{%for k,max in df_hourly_price_year.max.items %}{{max}},{%endfor%}],
+        },
+    ]
+    };
+    const graph4 = new Chart(
+    document.getElementById('graph4'),
+    {
+        type: 'line',
+        data: data,
+        options: {
+            responsive:false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                    display: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    }
+    );
+
+
+    horBarData = {
+        labels: [{%for k,v in npv_values.items%}'{{k}}',{%endfor%}],
+        datasets:[
+            {
+                backgroundColor: [
+                {%for k,v in npv_values.items%}'{{v.color}}',{%endfor%}
+                ],
+                borderColor: [
+                {%for k,v in npv_values.items%}'{{v.color}}',{%endfor%}
+                ],
+                borderWidth: 1,
+                maxBarThickness:40,
+                data: [{%for k,v in npv_values.items%}{{v.value}},{%endfor%}],
+            },
+        ]
+    }
+    horBar = new Chart(document.getElementById('horBar'),
+        {
+            type: 'bar',
+            data: horBarData,
+            options: {
+            indexAxis: 'y',
+            responsive:false,
+            plugins: {
+                legend: {
+                display: false
+                }
+            },
+            scales: {
+                y: {
+                    barThickness: 2,
+                    beginAtZero: true,
+                    grid: {
+                    display: false
+                    }
+                },
+                x: {
+                    barThickness: 2,
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+        }
+    )
+
+
+    console.log([{%for price in df_hourly_prices_label%}{{price}},{%endfor%}])
+    hourlyData = {
+        labels : {{df_hourly_prices_label | safe}},
+        datasets:[{
+            data:[{%for price in df_hourly_prices%}{{price}},{%endfor%}],
+            backgroundColor: [
+                '#326aa7',
+                {%for price in df_hourly_prices%}'#dfe2e6',{%endfor%}
+
+                
+            ],
+            borderColor: [
+                '#326aa7',
+                {%for price in df_hourly_prices%}'#dfe2e6',{%endfor%}
+                
+            ],
+            borderWidth: 1,
+        }]
+    }
+
+    hourly = new Chart(document.getElementById('hourly'),
+        {
+            type: 'bar',
+            data: hourlyData,
+            options: {
+            responsive:false,
+            plugins: {
+                legend: {
+                display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                    display: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+        }
+    )
+
+
+
+    document.querySelectorAll('.number').forEach(element => {
+        let totalDecimal =  element.innerHTML.split('.')[1]
+        if (!!!totalDecimal){
+                totalDecimal = 0
+            }
+        else{
+            totalDecimal = totalDecimal.length
+        }
+        element.innerHTML = parseFloat(element.innerHTML).toLocaleString('de',{minimumFractionDigits: 0});
+    });
+    
+    document.querySelectorAll('[type ="text"]').forEach(element => {
+            let totalDecimal =  element.value.toString().split('.')[1]
+            if (!!!totalDecimal){
+                    totalDecimal = 0
+                }
+            else{
+                totalDecimal = totalDecimal.length
+            }
+            console.log(totalDecimal)
+            console.log(element.value)
+            element.value = parseFloat(element.value).toLocaleString('de',{minimumFractionDigits: totalDecimal});
+    });
+
+
+    $("[ type ='text' ]").on('keyup', function(evt){
+        if (!!$(this).val()){
+            if(evt.key !== ","){
+                var n = $(this).val().replace(/[^0-9-,]/g, '');
+                let totalDecimal =  n.replace(',', '.').split('.')[1]
+                if (!!!totalDecimal){
+                    totalDecimal = 0
+                }
+                else{
+                    totalDecimal = totalDecimal.length
+                }
+                n = parseFloat(n.replace(',', '.'));
+                console.log(totalDecimal)
+                $(this).val(n.toLocaleString('de',{minimumFractionDigits: totalDecimal}));
+            }
+        }
+        else{
+            $(this).val(0);  
+        }
+    });
+
+
+});
+    
+</script>
+      
+        
+        
+
+
+
+
+{% endblock %}
